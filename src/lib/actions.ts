@@ -2,7 +2,6 @@
 
 import { z } from 'zod';
 import { generateItineraryFromPrompt } from '@/ai/flows/generate-itinerary-from-prompt';
-import { ItineraryFormSchema } from '@/components/itinerary/itinerary-form';
 import { differenceInDays, parseISO } from 'date-fns';
 import { Day } from '@/types';
 
@@ -46,7 +45,7 @@ const parseItinerary = (text: string): Day[] => {
   return days;
 };
 
-// Redefine the schema here for server-side validation, as ItineraryFormSchema is client-side
+// Redefine the schema here for server-side validation
 const GetItinerarySchema = z.object({
   destination: z.string(),
   from: z.string().transform((str) => parseISO(str)),
@@ -54,14 +53,13 @@ const GetItinerarySchema = z.object({
   preferences: z.string().transform((str) => str.split(',').filter(p => p)),
   dayStartTime: z.string(),
   dayEndTime: z.string(),
-  maxTravelTime: z.string().transform(str => parseInt(str)),
 });
 
 
 export async function getItinerary(values: z.infer<typeof GetItinerarySchema>) {
   try {
     const validatedValues = GetItinerarySchema.parse(values);
-    const { destination, from: fromDate, to: toDate, preferences, dayStartTime, dayEndTime, maxTravelTime } = validatedValues;
+    const { destination, from: fromDate, to: toDate, preferences, dayStartTime, dayEndTime } = validatedValues;
     
     const tripLength = differenceInDays(toDate, fromDate) + 1;
     if (tripLength <= 0) {
@@ -78,7 +76,6 @@ export async function getItinerary(values: z.infer<typeof GetItinerarySchema>) {
       Create a detailed, day-by-day travel itinerary for a ${tripLength}-day trip to ${destination}.
       The user's preferences are ${preferencesText}
       The user wants to start their day around ${dayStartTime} and end around ${dayEndTime}.
-      The total travel time for a day should not exceed ${maxTravelTime} hours.
       
       Please structure the output STRICTLY as follows for each day:
       - Use markdown heading 2 for the day's title (e.g., "## Day 1: Arrival and Exploration").
@@ -101,7 +98,7 @@ export async function getItinerary(values: z.infer<typeof GetItinerarySchema>) {
       
       Additional Instructions:
       - Group attractions that are geographically close to each other to minimize travel time.
-      - Provide logical flow and realistic timings, respecting the daily start/end times and max travel duration.
+      - Provide logical flow and realistic timings, respecting the daily start/end times.
       - Do not add ANY introductory or concluding text, notes, or summaries. Only output the structured itinerary.
     `;
 

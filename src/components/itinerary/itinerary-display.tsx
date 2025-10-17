@@ -25,7 +25,7 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
       <h2 className="font-headline text-3xl md:text-4xl font-bold mb-8 text-center">Your Custom Itinerary</h2>
       <div className="space-y-8">
         {itinerary.map((day, dayIndex) => (
-          <Card key={dayIndex} className="rounded-2xl shadow-lg overflow-hidden transition-all hover:shadow-xl animate-fade-in">
+          <Card key={dayIndex} className="rounded-2xl shadow-lg overflow-hidden transition-all hover:shadow-xl animate-fade-in border-border">
             <CardHeader className="bg-muted/30">
               <CardTitle className="flex items-center gap-3 text-2xl font-headline">
                 <Calendar className="w-6 h-6 text-primary"/>
@@ -42,7 +42,7 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
                        <h4 className="text-lg font-semibold">{activity.time}</h4>
                     </div>
                     <div className="pl-4 ml-4">
-                      <Card className="mt-2 overflow-hidden shadow-sm bg-white rounded-lg">
+                      <Card className="mt-2 overflow-hidden shadow-sm bg-card rounded-lg">
                         <div className="md:flex">
                           <div className="w-full h-48 md:w-48 md:h-auto relative flex-shrink-0">
                             <Image 

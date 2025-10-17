@@ -26,9 +26,8 @@ function ItineraryGeneratorComponent() {
     const preferences = searchParams.get('preferences') || '';
     const dayStartTime = searchParams.get('dayStartTime');
     const dayEndTime = searchParams.get('dayEndTime');
-    const maxTravelTime = searchParams.get('maxTravelTime');
 
-    if (!destination || !from || !to || !dayStartTime || !dayEndTime || !maxTravelTime) {
+    if (!destination || !from || !to || !dayStartTime || !dayEndTime) {
       setError('Missing required information to generate an itinerary. Please go back and fill out the form.');
       setIsLoading(false);
       return;
@@ -46,7 +45,6 @@ function ItineraryGeneratorComponent() {
           preferences,
           dayStartTime,
           dayEndTime,
-          maxTravelTime
         });
 
         if (result.error || !result.itinerary) {

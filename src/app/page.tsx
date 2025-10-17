@@ -22,7 +22,6 @@ export default function Home() {
     params.set('preferences', data.preferences.join(','));
     params.set('dayStartTime', data.dayStartTime);
     params.set('dayEndTime', data.dayEndTime);
-    params.set('maxTravelTime', data.maxTravelTime.toString());
 
     router.push(`/itinerary?${params.toString()}`);
   };

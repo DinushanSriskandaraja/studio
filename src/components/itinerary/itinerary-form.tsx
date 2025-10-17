@@ -26,7 +26,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { PreferenceIcons } from './icons';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const preferences = [
   'culture',
@@ -48,7 +47,6 @@ export const ItineraryFormSchema = z.object({
   preferences: z.array(z.enum(preferences)),
   dayStartTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
   dayEndTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
-  maxTravelTime: z.number().int().min(1).max(12),
 });
 
 type ItineraryFormProps = {
@@ -65,7 +63,6 @@ export function ItineraryForm({ onSubmit, isLoading }: ItineraryFormProps) {
       preferences: [],
       dayStartTime: '09:00',
       dayEndTime: '21:00',
-      maxTravelTime: 4,
     },
   });
 
@@ -146,7 +143,7 @@ export function ItineraryForm({ onSubmit, isLoading }: ItineraryFormProps) {
           />
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-8">
            <FormField
             control={form.control}
             name="dayStartTime"
@@ -169,28 +166,6 @@ export function ItineraryForm({ onSubmit, isLoading }: ItineraryFormProps) {
                 <FormControl>
                   <Input type="time" {...field} />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="maxTravelTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Max Travel Per Day</FormLabel>
-                 <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select max travel time" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {[...Array(12)].map((_, i) => (
-                        <SelectItem key={i+1} value={String(i+1)}>{i+1} hour{i > 0 ? 's' : ''}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 <FormMessage />
               </FormItem>
             )}
