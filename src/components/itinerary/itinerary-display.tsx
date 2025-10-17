@@ -46,7 +46,7 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
                         <div className="md:flex">
                           <div className="w-full h-48 md:w-48 md:h-auto relative flex-shrink-0">
                             <Image 
-                              src={`https://source.unsplash.com/400x400/?${activity.photoQuery}`}
+                              src={`https://source.unsplash.com/400x400/?${activity.photoQuery.replace(/\s/g, ',')}`}
                               alt={`Image of ${activity.place}`}
                               fill
                               className="object-cover"
