@@ -89,7 +89,7 @@ export async function getItinerary(values: z.infer<typeof GetItinerarySchema>) {
       - Place Name: The name of the location or activity.
       - Description: A brief, engaging one-sentence description.
       - (~<spending time>): Estimated time to spend at the location (e.g., ~1-2 hours). MUST be in parentheses with a tilde.
-      - [<photo query>]: A 1-2 word Unsplash/Google Images query for the location (e.g., [Eiffel Tower]). MUST be in square brackets.
+      - [<photo query>]: A 1-2 word Unsplash query for the location (e.g., [Eiffel Tower]). This should be a simple term that will find a good image. MUST be in square brackets.
       - (<transportation time>): Estimated travel time from the PREVIOUS location (e.g., 20 min drive). This part is optional and should be omitted for the first activity of the day. MUST be in parentheses.
 
       Example of a correct bullet point:

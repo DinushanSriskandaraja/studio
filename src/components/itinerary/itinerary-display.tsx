@@ -34,7 +34,9 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
             </CardHeader>
             <CardContent className="p-0">
               <div className="space-y-6 p-6">
-                {day.activities.map((activity, activityIndex) => (
+                {day.activities.map((activity, activityIndex) => {
+                  const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(activity.photoQuery)}`;
+                  return (
                   <div key={activityIndex} className="pl-6 border-l-2 border-primary/30 relative">
                      <div className="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-primary border-4 border-background" />
                     <div className="flex items-center gap-2 text-primary font-bold ml-4">
@@ -46,7 +48,7 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
                         <div className="md:flex">
                           <div className="w-full h-48 md:w-48 md:h-auto relative flex-shrink-0">
                             <Image 
-                              src={`https://picsum.photos/seed/${dayIndex}-${activityIndex}/400/400`}
+                              src={imageUrl}
                               alt={`Image of ${activity.place}`}
                               data-ai-hint={activity.photoQuery}
                               fill
@@ -71,7 +73,7 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
                       )}
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             </CardContent>
           </Card>
