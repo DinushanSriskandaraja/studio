@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { generateItineraryFromPrompt } from '@/ai/flows/generate-itinerary-from-prompt';
 import { ItineraryFormSchema } from '@/components/itinerary/itinerary-form';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, parseISO } from 'date-fns';
 import { Day } from '@/types';
 
 // Helper function to parse the AI's markdown response
@@ -46,16 +46,24 @@ const parseItinerary = (text: string): Day[] => {
   return days;
 };
 
+// Redefine the schema here for server-side validation, as ItineraryFormSchema is client-side
+const GetItinerarySchema = z.object({
+  destination: z.string(),
+  from: z.string().transform((str) => parseISO(str)),
+  to: z.string().transform((str) => parseISO(str)),
+  preferences: z.string().transform((str) => str.split(',').filter(p => p)),
+  dayStartTime: z.string(),
+  dayEndTime: z.string(),
+  maxTravelTime: z.string().transform(str => parseInt(str)),
+});
 
-export async function getItinerary(values: z.infer<typeof ItineraryFormSchema>) {
+
+export async function getItinerary(values: z.infer<typeof GetItinerarySchema>) {
   try {
-    const { destination, dates, preferences } = values;
-
-    if (!dates.from || !dates.to) {
-      return { error: 'Please select a valid date range.' };
-    }
-
-    const tripLength = differenceInDays(dates.to, dates.from) + 1;
+    const validatedValues = GetItinerarySchema.parse(values);
+    const { destination, from: fromDate, to: toDate, preferences, dayStartTime, dayEndTime, maxTravelTime } = validatedValues;
+    
+    const tripLength = differenceInDays(toDate, fromDate) + 1;
     if (tripLength <= 0) {
       return { error: 'End date must be after start date.' };
     }
@@ -69,6 +77,8 @@ export async function getItinerary(values: z.infer<typeof ItineraryFormSchema>) 
     const prompt = `
       Create a detailed, day-by-day travel itinerary for a ${tripLength}-day trip to ${destination}.
       The user's preferences are ${preferencesText}
+      The user wants to start their day around ${dayStartTime} and end around ${dayEndTime}.
+      The total travel time for a day should not exceed ${maxTravelTime} hours.
       
       Please structure the output STRICTLY as follows for each day:
       - Use markdown heading 2 for the day's title (e.g., "## Day 1: Arrival and Exploration").
@@ -90,8 +100,8 @@ export async function getItinerary(values: z.infer<typeof ItineraryFormSchema>) 
       * 13:30 - Jardin des Tuileries: Stroll through the beautiful gardens next to the Louvre. (~1 hour) [Tuileries Garden] (10 min walk)
       
       Additional Instructions:
-      - Group attractions that are geographically close to each other.
-      - Provide logical flow and realistic timings.
+      - Group attractions that are geographically close to each other to minimize travel time.
+      - Provide logical flow and realistic timings, respecting the daily start/end times and max travel duration.
       - Do not add ANY introductory or concluding text, notes, or summaries. Only output the structured itinerary.
     `;
 
@@ -107,6 +117,9 @@ export async function getItinerary(values: z.infer<typeof ItineraryFormSchema>) 
 
   } catch (error) {
     console.error("Itinerary generation failed:", error);
+    if (error instanceof z.ZodError) {
+      return { error: 'Invalid data provided. Please check your inputs.' };
+    }
     return { error: 'An unexpected error occurred while generating your itinerary. Please try again later.' };
   }
 }

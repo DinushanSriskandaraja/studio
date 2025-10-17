@@ -13,6 +13,7 @@ import { Calendar } from '@/components/ui/calendar';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -25,6 +26,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { PreferenceIcons } from './icons';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const preferences = [
   'culture',
@@ -40,10 +42,13 @@ export const ItineraryFormSchema = z.object({
     message: 'Destination must be at least 2 characters.',
   }),
   dates: z.object({
-    from: z.date().optional(),
-    to: z.date().optional(),
+    from: z.date({ required_error: 'Please select a start date.' }),
+    to: z.date({ required_error: 'Please select an end date.' }),
   }),
   preferences: z.array(z.enum(preferences)),
+  dayStartTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
+  dayEndTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
+  maxTravelTime: z.number().int().min(1).max(12),
 });
 
 type ItineraryFormProps = {
@@ -58,6 +63,9 @@ export function ItineraryForm({ onSubmit, isLoading }: ItineraryFormProps) {
       destination: '',
       dates: { from: undefined, to: undefined },
       preferences: [],
+      dayStartTime: '09:00',
+      dayEndTime: '21:00',
+      maxTravelTime: 4,
     },
   });
 
@@ -138,14 +146,66 @@ export function ItineraryForm({ onSubmit, isLoading }: ItineraryFormProps) {
           />
         </div>
 
+        <div className="grid md:grid-cols-3 gap-8">
+           <FormField
+            control={form.control}
+            name="dayStartTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Day Start Time</FormLabel>
+                <FormControl>
+                  <Input type="time" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="dayEndTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Day End Time</FormLabel>
+                <FormControl>
+                  <Input type="time" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="maxTravelTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Max Travel Per Day</FormLabel>
+                 <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select max travel time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {[...Array(12)].map((_, i) => (
+                        <SelectItem key={i+1} value={String(i+1)}>{i+1} hour{i > 0 ? 's' : ''}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="preferences"
           render={() => (
             <FormItem>
-              <FormLabel>Preferences</FormLabel>
+              <FormLabel>I'm interested in...</FormLabel>
+              <FormDescription>Select your interests to personalize your trip.</FormDescription>
               <FormControl>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 pt-2">
                   {preferences.map((preference) => {
                     const Icon = PreferenceIcons[preference];
                     return (

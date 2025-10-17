@@ -1,47 +1,30 @@
 'use client';
 
-import { useState } from 'react';
 import type { z } from 'zod';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
-import { getItinerary } from '@/lib/actions';
+
 import { ItineraryForm, type ItineraryFormSchema } from '@/components/itinerary/itinerary-form';
-import { ItineraryDisplay } from '@/components/itinerary/itinerary-display';
 import { PageHeader } from '@/components/itinerary/page-header';
 import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import type { Day } from '@/types';
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [itinerary, setItinerary] = useState<Day[] | null>(null);
-  const { toast } = useToast();
-
+  const router = useRouter();
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero');
 
   const handleFormSubmit = async (data: z.infer<typeof ItineraryFormSchema>) => {
-    setIsLoading(true);
-    setItinerary(null);
-    
-    try {
-      const result = await getItinerary(data);
-      if (result.error || !result.itinerary) {
-        throw new Error(result.error || 'Failed to generate itinerary.');
-      }
-      setItinerary(result.itinerary);
+    const params = new URLSearchParams();
+    params.set('destination', data.destination);
+    if (data.dates.from) params.set('from', data.dates.from.toISOString());
+    if (data.dates.to) params.set('to', data.dates.to.toISOString());
+    params.set('preferences', data.preferences.join(','));
+    params.set('dayStartTime', data.dayStartTime);
+    params.set('dayEndTime', data.dayEndTime);
+    params.set('maxTravelTime', data.maxTravelTime.toString());
 
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: errorMessage,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    router.push(`/itinerary?${params.toString()}`);
   };
 
   return (
@@ -73,41 +56,10 @@ export default function Home() {
           </section>
 
           <Card className="mb-12 shadow-lg rounded-2xl">
-            <CardContent className="p-6">
-              <ItineraryForm onSubmit={handleFormSubmit} isLoading={isLoading} />
+            <CardContent className="p-6 md:p-8">
+              <ItineraryForm onSubmit={handleFormSubmit} isLoading={false} />
             </CardContent>
           </Card>
-
-          {isLoading && (
-            <div>
-              <h2 className="font-headline text-3xl font-bold mb-6">Generating your trip...</h2>
-              <div className="space-y-8">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="space-y-4">
-                    <Skeleton className="h-8 w-1/3" />
-                    <div className="flex gap-4">
-                        <Skeleton className="h-24 w-24 rounded-lg" />
-                        <div className="flex-1 space-y-2">
-                            <Skeleton className="h-6 w-1/2" />
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-3/4" />
-                        </div>
-                    </div>
-                     <div className="flex gap-4">
-                        <Skeleton className="h-24 w-24 rounded-lg" />
-                        <div className="flex-1 space-y-2">
-                            <Skeleton className="h-6 w-1/2" />
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-3/4" />
-                        </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {itinerary && <ItineraryDisplay itinerary={itinerary} />}
         </div>
       </main>
       <footer className="text-center py-6 text-muted-foreground text-sm">
