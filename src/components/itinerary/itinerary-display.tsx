@@ -1,114 +1,82 @@
 'use client';
 
+import Image from 'next/image';
+import { Clock, Bus, Hourglass } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { Card } from '@/components/ui/card';
+import type { Day, Activity } from '@/types';
 
 type ItineraryDisplayProps = {
-  itinerary: string;
-};
-
-type Activity = {
-  place: string;
-  description: string;
-};
-
-type DayPart = {
-  title: 'Morning' | 'Afternoon' | 'Evening';
-  activities: Activity[];
-};
-
-type Day = {
-  title: string;
-  parts: DayPart[];
-};
-
-const parseItinerary = (text: string): Day[] => {
-  const days: Day[] = [];
-  const dayBlocks = text.split('## ').filter(Boolean);
-
-  dayBlocks.forEach((dayBlock) => {
-    const dayTitleMatch = dayBlock.match(/(.*)/);
-    if (!dayTitleMatch) return;
-
-    const day: Day = {
-      title: dayTitleMatch[1].trim(),
-      parts: [],
-    };
-
-    const partBlocks = dayBlock.split('### ').filter(Boolean);
-    partBlocks.forEach((partBlock) => {
-      const partTitleMatch = partBlock.match(/(Morning|Afternoon|Evening)/);
-      if (!partTitleMatch) return;
-
-      const part: DayPart = {
-        title: partTitleMatch[0] as DayPart['title'],
-        activities: [],
-      };
-
-      const activityMatches = partBlock.matchAll(/\* ([^:]+): (.*)/g);
-      for (const match of activityMatches) {
-        part.activities.push({
-          place: match[1].trim(),
-          description: match[2].trim(),
-        });
-      }
-
-      if(part.activities.length > 0) {
-        day.parts.push(part);
-      }
-    });
-
-    if (day.parts.length > 0) {
-      days.push(day);
-    }
-  });
-
-  return days;
+  itinerary: Day[];
 };
 
 export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
-  const parsedItinerary = parseItinerary(itinerary);
 
-  if (parsedItinerary.length === 0) {
+  if (itinerary.length === 0) {
     return (
       <div>
         <h2 className="font-headline text-3xl font-bold mb-4">Your Itinerary</h2>
-        <p className="text-muted-foreground">We couldn't generate a structured itinerary from the response. Please try again.</p>
+        <p className="text-muted-foreground">We couldn't generate a structured itinerary from the response. Please try again with different preferences.</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h2 className="font-headline text-3xl font-bold mb-4">Your Custom Itinerary</h2>
-      <Accordion type="single" collapsible defaultValue="day-0" className="w-full">
-        {parsedItinerary.map((day, dayIndex) => (
-          <AccordionItem key={dayIndex} value={`day-${dayIndex}`}>
-            <AccordionTrigger className="text-xl font-headline hover:no-underline">
-              {day.title}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-6 pl-2 border-l-2 border-primary/50 ml-2">
-                {day.parts.map((part, partIndex) => (
-                  <div key={partIndex} className="relative pl-6">
-                     <div className="absolute left-[-9px] top-1 h-4 w-4 rounded-full bg-primary" />
-                    <h4 className="font-bold text-lg mb-2">{part.title}</h4>
-                    <ul className="space-y-2 list-none">
-                      {part.activities.map((activity, activityIndex) => (
-                        <li key={activityIndex}>
-                          <p className="font-semibold">{activity.place}</p>
-                          <p className="text-muted-foreground">{activity.description}</p>
-                        </li>
-                      ))}
-                    </ul>
+      <h2 className="font-headline text-3xl font-bold mb-6 text-center">Your Custom Itinerary</h2>
+      <Accordion type="single" collapsible defaultValue="day-0" className="w-full space-y-4">
+        {itinerary.map((day, dayIndex) => (
+          <AccordionItem key={dayIndex} value={`day-${dayIndex}`} className="border-b-0">
+             <Card className="rounded-2xl shadow-md overflow-hidden">
+                <AccordionTrigger className="text-xl font-headline p-6 hover:no-underline bg-card">
+                  {day.title}
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
+                  <div className="space-y-4 p-6">
+                    {day.activities.map((activity, activityIndex) => (
+                      <div key={activityIndex}>
+                        <div className="flex items-center gap-2 text-primary font-bold">
+                           <Clock className="w-5 h-5"/>
+                           <h4 className="text-lg">{activity.time}</h4>
+                        </div>
+                        <div className="pl-7">
+                          <Card className="mt-2 overflow-hidden">
+                            <div className="flex">
+                              <div className="w-32 h-32 md:w-40 md:h-40 relative flex-shrink-0">
+                                <Image 
+                                  src={`https://source.unsplash.com/400x400/?${activity.photoQuery}`}
+                                  alt={`Image of ${activity.place}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="p-4 flex flex-col">
+                                <h5 className="font-bold text-lg">{activity.place}</h5>
+                                <p className="text-muted-foreground text-sm flex-grow">{activity.description}</p>
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
+                                  <Hourglass className="w-3 h-3"/> 
+                                  <span>{activity.duration}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                          {activity.transport && (
+                            <div className="pl-4 mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                              <Bus className="w-4 h-4" /> 
+                              <span>{activity.transport} to next location</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </AccordionContent>
+                </AccordionContent>
+             </Card>
           </AccordionItem>
         ))}
       </Accordion>

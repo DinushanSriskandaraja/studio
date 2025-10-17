@@ -4,6 +4,48 @@ import { z } from 'zod';
 import { generateItineraryFromPrompt } from '@/ai/flows/generate-itinerary-from-prompt';
 import { ItineraryFormSchema } from '@/components/itinerary/itinerary-form';
 import { differenceInDays } from 'date-fns';
+import { Day } from '@/types';
+
+// Helper function to parse the AI's markdown response
+const parseItinerary = (text: string): Day[] => {
+  const days: Day[] = [];
+  const dayBlocks = text.split('## ').filter(s => s.trim() !== '');
+
+  dayBlocks.forEach(dayBlock => {
+    const lines = dayBlock.split('\n').filter(line => line.trim() !== '');
+    if (lines.length === 0) return;
+
+    const dayTitle = lines.shift()!.trim();
+    const day: Day = {
+      title: dayTitle,
+      activities: [],
+    };
+
+    const activityRegex = /\* (\d{2}:\d{2}) - ([^:]+): (.*) \(~(.+?)\) \[(.+?)\](?: \((.+?)\))?/;
+    
+    lines.forEach(line => {
+        const match = line.match(activityRegex);
+        if (match) {
+            const [_, time, place, description, duration, photoQuery, transport] = match;
+            day.activities.push({
+                time: time.trim(),
+                place: place.trim(),
+                description: description.trim(),
+                duration: duration.trim(),
+                photoQuery: photoQuery.trim(),
+                transport: transport ? transport.trim() : null
+            });
+        }
+    });
+
+    if (day.activities.length > 0) {
+      days.push(day);
+    }
+  });
+
+  return days;
+};
+
 
 export async function getItinerary(values: z.infer<typeof ItineraryFormSchema>) {
   try {
@@ -28,14 +70,29 @@ export async function getItinerary(values: z.infer<typeof ItineraryFormSchema>) 
       Create a detailed, day-by-day travel itinerary for a ${tripLength}-day trip to ${destination}.
       The user's preferences are ${preferencesText}
       
-      Please structure the output as follows for each day:
-      - Use markdown heading 2 for the day (e.g., "## Day 1: Arrival and Exploration").
-      - Use markdown heading 3 for parts of the day (e.g., "### Morning", "### Afternoon", "### Evening").
-      - For each activity, use a bullet point starting with the place name, followed by a colon and a brief, engaging one-sentence description. Example: "* Eiffel Tower: Get a bird's-eye view of Paris from this iconic landmark."
-      - Group attractions that are geographically close to each other to minimize travel time.
-      - Prioritize cultural or nature activities in the morning/afternoon, and food or nightlife in the evening.
-      - Provide logical flow and realistic timings. Do not include travel times in the output.
-      - Do not add any introductory or concluding text outside of the day-by-day itinerary structure.
+      Please structure the output STRICTLY as follows for each day:
+      - Use markdown heading 2 for the day's title (e.g., "## Day 1: Arrival and Exploration").
+      - Do NOT use heading 3 or any other heading levels.
+      - Each activity MUST be a single bullet point on a new line.
+      - Each bullet point MUST follow this EXACT format:
+      * HH:mm - Place Name: One-sentence description. (~<spending time>) [<photo query>] (<transportation time>)
+
+      Here are the rules for each part of the format:
+      - HH:mm: The start time for the activity in 24-hour format.
+      - Place Name: The name of the location or activity.
+      - Description: A brief, engaging one-sentence description.
+      - (~<spending time>): Estimated time to spend at the location (e.g., ~1-2 hours). MUST be in parentheses with a tilde.
+      - [<photo query>]: A 1-2 word Unsplash/Google Images query for the location (e.g., [Eiffel Tower]). MUST be in square brackets.
+      - (<transportation time>): Estimated travel time from the PREVIOUS location (e.g., 20 min drive). This part is optional and should be omitted for the first activity of the day. MUST be in parentheses.
+
+      Example of a correct bullet point:
+      * 09:00 - Louvre Museum: Explore world-famous art, including the Mona Lisa. (~3-4 hours) [Louvre Museum]
+      * 13:30 - Jardin des Tuileries: Stroll through the beautiful gardens next to the Louvre. (~1 hour) [Tuileries Garden] (10 min walk)
+      
+      Additional Instructions:
+      - Group attractions that are geographically close to each other.
+      - Provide logical flow and realistic timings.
+      - Do not add ANY introductory or concluding text, notes, or summaries. Only output the structured itinerary.
     `;
 
     const result = await generateItineraryFromPrompt({ prompt });
@@ -44,7 +101,10 @@ export async function getItinerary(values: z.infer<typeof ItineraryFormSchema>) 
       return { error: 'The AI could not generate an itinerary based on your request. Please try again with different preferences.' };
     }
 
-    return { itinerary: result.itinerary };
+    const parsedItinerary = parseItinerary(result.itinerary);
+    
+    return { itinerary: parsedItinerary };
+
   } catch (error) {
     console.error("Itinerary generation failed:", error);
     return { error: 'An unexpected error occurred while generating your itinerary. Please try again later.' };
