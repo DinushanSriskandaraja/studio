@@ -8,7 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import type { Day, Activity } from '@/types';
 
 type ItineraryDisplayProps = {
@@ -28,26 +28,27 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
 
   return (
     <div>
-      <h2 className="font-headline text-3xl font-bold mb-6 text-center">Your Custom Itinerary</h2>
-      <Accordion type="single" collapsible defaultValue="day-0" className="w-full space-y-4">
+      <h2 className="font-headline text-3xl md:text-4xl font-bold mb-8 text-center">Your Custom Itinerary</h2>
+      <Accordion type="single" collapsible defaultValue="day-0" className="w-full space-y-6">
         {itinerary.map((day, dayIndex) => (
           <AccordionItem key={dayIndex} value={`day-${dayIndex}`} className="border-b-0">
-             <Card className="rounded-2xl shadow-md overflow-hidden">
-                <AccordionTrigger className="text-xl font-headline p-6 hover:no-underline bg-card">
+             <Card className="rounded-2xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
+                <AccordionTrigger className="text-xl md:text-2xl font-headline p-6 hover:no-underline bg-card data-[state=open]:bg-muted/50">
                   {day.title}
                 </AccordionTrigger>
-                <AccordionContent className="p-0">
-                  <div className="space-y-4 p-6">
+                <AccordionContent className="p-0 bg-card">
+                  <div className="space-y-6 p-6">
                     {day.activities.map((activity, activityIndex) => (
-                      <div key={activityIndex}>
-                        <div className="flex items-center gap-2 text-primary font-bold">
+                      <div key={activityIndex} className="pl-4 border-l-4 border-primary/50 relative">
+                         <div className="absolute -left-[11px] top-1.5 h-4 w-4 rounded-full bg-primary" />
+                        <div className="flex items-center gap-2 text-primary font-bold ml-4">
                            <Clock className="w-5 h-5"/>
-                           <h4 className="text-lg">{activity.time}</h4>
+                           <h4 className="text-lg font-semibold">{activity.time}</h4>
                         </div>
-                        <div className="pl-7">
-                          <Card className="mt-2 overflow-hidden">
-                            <div className="flex">
-                              <div className="w-32 h-32 md:w-40 md:h-40 relative flex-shrink-0">
+                        <div className="pl-4 ml-4">
+                          <Card className="mt-2 overflow-hidden shadow-sm">
+                            <div className="md:flex">
+                              <div className="w-full h-48 md:w-48 md:h-auto relative flex-shrink-0">
                                 <Image 
                                   src={`https://source.unsplash.com/400x400/?${activity.photoQuery}`}
                                   alt={`Image of ${activity.place}`}
@@ -57,8 +58,8 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
                               </div>
                               <div className="p-4 flex flex-col">
                                 <h5 className="font-bold text-lg">{activity.place}</h5>
-                                <p className="text-muted-foreground text-sm flex-grow">{activity.description}</p>
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
+                                <p className="text-muted-foreground text-sm flex-grow mt-1">{activity.description}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3">
                                   <Hourglass className="w-3 h-3"/> 
                                   <span>{activity.duration}</span>
                                 </div>
@@ -66,7 +67,7 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
                             </div>
                           </Card>
                           {activity.transport && (
-                            <div className="pl-4 mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="pl-4 mt-3 flex items-center gap-2 text-sm text-muted-foreground">
                               <Bus className="w-4 h-4" /> 
                               <span>{activity.transport} to next location</span>
                             </div>

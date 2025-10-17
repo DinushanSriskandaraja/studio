@@ -6,11 +6,11 @@ import { useSearchParams } from 'next/navigation';
 import { getItinerary } from '@/lib/actions';
 import { ItineraryDisplay } from '@/components/itinerary/itinerary-display';
 import { PageHeader } from '@/components/itinerary/page-header';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { Day } from '@/types';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { LoadingSpinner } from './loading-spinner';
 
 function ItineraryGeneratorComponent() {
   const searchParams = useSearchParams();
@@ -22,11 +22,11 @@ function ItineraryGeneratorComponent() {
   useEffect(() => {
     const destination = searchParams.get('destination');
     const from = searchParams.get('from');
-    const to = searchParams.get('to');
-    const preferences = searchParams.get('preferences') || '';
-    const dayStartTime = searchParams.get('dayStartTime');
-    const dayEndTime = searchParams.get('dayEndTime');
-    const maxTravelTime = searchParams.get('maxTravelTime');
+    const to = search_params.get('to');
+    const preferences = search_params.get('preferences') || '';
+    const dayStartTime = search_params.get('dayStartTime');
+    const dayEndTime = search_params.get('dayEndTime');
+    const maxTravelTime = search_params.get('maxTravelTime');
 
     if (!destination || !from || !to || !dayStartTime || !dayEndTime || !maxTravelTime) {
       setError('Missing required information to generate an itinerary. Please go back and fill out the form.');
@@ -75,37 +75,7 @@ function ItineraryGeneratorComponent() {
       <PageHeader />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {isLoading && (
-            <div>
-              <h2 className="font-headline text-3xl font-bold mb-6 text-center">Crafting your perfect adventure...</h2>
-              <p className="text-muted-foreground text-center mb-10">Our AI is analyzing your preferences to build a personalized trip. Please wait a moment.</p>
-              <div className="space-y-8">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="space-y-4">
-                    <Skeleton className="h-8 w-1/3 rounded-lg" />
-                    <div className="flex gap-4">
-                        <Skeleton className="h-32 w-32 rounded-lg" />
-                        <div className="flex-1 space-y-2">
-                            <Skeleton className="h-6 w-1/2" />
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-3/4" />
-                            <Skeleton className="h-4 w-1/4" />
-                        </div>
-                    </div>
-                     <div className="flex gap-4">
-                        <Skeleton className="h-32 w-32 rounded-lg" />
-                        <div className="flex-1 space-y-2">
-                            <Skeleton className="h-6 w-1/2" />
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-3/4" />
-                            <Skeleton className="h-4 w-1/4" />
-                        </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {isLoading && <LoadingSpinner />}
 
           {error && !isLoading && (
              <div className="text-center py-10">
