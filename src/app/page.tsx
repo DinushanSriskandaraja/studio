@@ -51,7 +51,7 @@ export default function Home() {
               </div>
             </div>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Tell us your travel dreams, and our AI will weave the perfect itinerary for you, complete with stunning photos, timings, and travel estimates.
+              Tell us your travel dreams, and our AI will weave the perfect itinerary for you.
             </p>
           </section>
 

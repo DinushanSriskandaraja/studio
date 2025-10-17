@@ -214,7 +214,7 @@ export function ItineraryForm({ onSubmit, isLoading }: ItineraryFormProps) {
                         type="button"
                         variant={selectedPreferences.includes(preference) ? 'default' : 'outline'}
                         onClick={() => togglePreference(preference)}
-                        className="flex flex-col h-24 gap-2"
+                        className="flex flex-col h-24 gap-2 rounded-lg transition-transform duration-200 hover:scale-105"
                       >
                         <Icon className="h-8 w-8" />
                         <span className="capitalize">{preference}</span>
@@ -228,7 +228,7 @@ export function ItineraryForm({ onSubmit, isLoading }: ItineraryFormProps) {
           )}
         />
 
-        <Button type="submit" disabled={isLoading} className="w-full" size="lg" variant="accent">
+        <Button type="submit" disabled={isLoading} className="w-full rounded-full" size="lg" variant="accent">
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
