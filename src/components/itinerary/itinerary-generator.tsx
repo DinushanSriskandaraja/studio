@@ -22,11 +22,11 @@ function ItineraryGeneratorComponent() {
   useEffect(() => {
     const destination = searchParams.get('destination');
     const from = searchParams.get('from');
-    const to = search_params.get('to');
-    const preferences = search_params.get('preferences') || '';
-    const dayStartTime = search_params.get('dayStartTime');
-    const dayEndTime = search_params.get('dayEndTime');
-    const maxTravelTime = search_params.get('maxTravelTime');
+    const to = searchParams.get('to');
+    const preferences = searchParams.get('preferences') || '';
+    const dayStartTime = searchParams.get('dayStartTime');
+    const dayEndTime = searchParams.get('dayEndTime');
+    const maxTravelTime = searchParams.get('maxTravelTime');
 
     if (!destination || !from || !to || !dayStartTime || !dayEndTime || !maxTravelTime) {
       setError('Missing required information to generate an itinerary. Please go back and fill out the form.');
@@ -81,6 +81,7 @@ function ItineraryGeneratorComponent() {
              <div className="text-center py-10">
                 <h2 className="font-headline text-3xl font-bold mb-4 text-destructive">Oops! Something went wrong.</h2>
                 <p className="text-muted-foreground mb-6">{error}</p>
+
                 <Button asChild>
                     <Link href="/">Try Again</Link>
                 </Button>
