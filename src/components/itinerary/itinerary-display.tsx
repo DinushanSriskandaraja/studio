@@ -46,8 +46,9 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
                         <div className="md:flex">
                           <div className="w-full h-48 md:w-48 md:h-auto relative flex-shrink-0">
                             <Image 
-                              src={`https://source.unsplash.com/400x400/?${activity.photoQuery.replace(/\s/g, ',')}`}
+                              src={`https://picsum.photos/seed/${dayIndex}-${activityIndex}/400/400`}
                               alt={`Image of ${activity.place}`}
+                              data-ai-hint={activity.photoQuery}
                               fill
                               className="object-cover"
                             />
