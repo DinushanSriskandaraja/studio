@@ -62,7 +62,17 @@ export default function Home() {
         </div>
       </main>
       <footer className="text-center py-6 text-muted-foreground text-sm">
-        <p>Powered by AI magic ✨</p>
+        <p>
+    Powered by{" "}
+    <a
+      href="https://tribetek.info"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary hover:underline"
+    >
+      TribeTek
+    </a>
+  </p>
       </footer>
     </div>
   );
