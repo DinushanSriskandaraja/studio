@@ -10,7 +10,7 @@ export function PageHeader() {
         <Link href="/" className="flex items-center gap-2 text-foreground">
           <MountainSnow className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold font-headline">
-            Tip2Trip
+            Tip2Trips
           </h1>
         </Link>
       </div>
