@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: 'Tip2Trip',
+  title: 'Tip2Trips',
   description: 'AI-powered travel itinerary generator',
 };
 
