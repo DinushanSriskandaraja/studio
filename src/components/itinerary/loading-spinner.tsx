@@ -10,7 +10,7 @@ export function LoadingSpinner() {
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
         </div>
       </div>
-      <h2 className="font-headline text-3xl font-bold mb-4">Charting Your Course...</h2>
+      <h2 className="font-headline text-3xl font-bold mb-4">Tip2Trips planning your trip...</h2>
       <p className="text-muted-foreground max-w-md">
         Our AI is scanning the globe to build your personalized trip. This may take a moment.
       </p>
